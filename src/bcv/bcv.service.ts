@@ -51,7 +51,7 @@ export class BcvService {
 
       const response = await lastValueFrom(
         this.httpService.post<BcvResponse>(
-          this.BCV_API_URL || '',
+          this.BCV_API_URL + '/MBbcv',
           {
             Moneda: moneda,
             Fechavalor: fechavalor,
