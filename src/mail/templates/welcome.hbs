@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .main {
+      background-color: #ffffff;
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    }
+    .container {
+      margin: 0 auto;
+      padding: 20px 0 48px;
+      max-width: 580px;
+    }
+    .logo {
+      margin: 0 auto;
+      display: block;
+      width: 250px;
+      height: 76px;
+    }
+    .heading {
+      font-size: 32px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: #484848;
+      text-align: center;
+    }
+    .paragraph {
+      font-size: 16px;
+      line-height: 26px;
+      color: #484848;
+    }
+    .button-container {
+      text-align: center;
+      margin: 24px 0;
+    }
+    .button {
+      background-color: #000000;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: none;
+      text-align: center;
+      display: inline-block;
+      padding: 12px 24px;
+    }
+    .list {
+      font-size: 16px;
+      line-height: 26px;
+      color: #484848;
+    }
+    .hr {
+      border-color: #e6ebf1;
+      margin: 20px 0;
+    }
+    .footer {
+      font-size: 14px;
+      line-height: 24px;
+      color: #9ca299;
+      text-align: center;
+    }
+    .link {
+      color: #2A6496;
+      text-decoration: underline;
+    }
+    .copyright {
+      font-size: 12px;
+      line-height: 20px;
+      color: #9ca299;
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <div class="container">
+      <img src="https://assets.econecta.co/uploads/econecta/logo.png" width="250" height="76" alt="Logo" class="logo" />
+      <h1 class="heading">¡Bienvenido a Econecta!</h1>
+      
+      <p class="paragraph">Hola {{name}},</p>
+      <p class="paragraph">
+        Gracias por unirte a Econecta. Tu cuenta está lista para que empieces a explorar
+        nuestro catálogo de tarjetas digitales y NFC, diseñadas para hacer tu vida más conectada.
+      </p>
+
+      <p class="paragraph">
+        Este es el enlace a tu perfil: <a href="{{profileUrl}}" class="link">{{profileUrl}}</a>
+      </p>
+
+      <p class="paragraph">Próximos pasos:</p>
+      <ul class="list">
+        <li>Completa tu perfil</li>
+        <li>Explora nuestro catálogo</li>
+        <li>Realiza tu primera compra</li>
+        <li>Revisa nuestras ofertas especiales</li>
+      </ul>
+
+      <p class="paragraph">Características de tu cuenta:</p>
+      <ul class="list">
+        <li>Historial de compras</li>
+        <li>Seguimiento de pedidos</li>
+        <li>Ofertas exclusivas</li>
+        <li>Atención personalizada</li>
+      </ul>
+
+      <div class="button-container">
+        <a href="{{adminUrl}}" class="button">Ir a mi cuenta</a>
+      </div>
+
+      <hr class="hr" />
+      <p class="footer">
+        Si tienes alguna pregunta, no dudes en contactarnos en support@econecta.io
+      </p>
+      <p class="copyright">
+        © {{year}} Econecta. Todos los derechos reservados.
+      </p>
+    </div>
+  </div>
+</body>
+</html> 

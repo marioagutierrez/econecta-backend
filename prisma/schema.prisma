@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ClientType {
+  PERSONAL
+  EMPRESA
+}
+
+model Client {
+  id       String     @id @default(uuid())
+  email    String     @unique
+  name     String?
+  username String?    @unique
+  password String?
+  type     ClientType
+  document String?
+  address  String?
+  phone    String?
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  orders       Order[]
+  orderHistory OrderHistory[]
+  empresa      Empresa?
+  cupones      Cupones[]
+}
+
+model Product {
+  id          String           @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal          @db.Decimal(10, 2)
+  stock       Int
+  imageUrl    String?
+  hasVariants Boolean          @default(false)
+  variants    ProductVariant[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  orderItems  OrderItem[]
+}
+
+model ProductVariant {
+  id          String      @id @default(uuid())
+  productId   String
+  product     Product     @relation(fields: [productId], references: [id])
+  name        String
+  description String?
+  stock       Int
+  imageUrl    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id         String        @id @default(uuid())
+  clientId   String
+  client     Client        @relation(fields: [clientId], references: [id])
+  status     OrderStatus
+  total      Decimal       @db.Decimal(10, 2)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  tasaBCV    Decimal       @db.Decimal(10, 2)
+  totalBs    Decimal       @db.Decimal(10, 2)
+  items      OrderItem[]
+  invoiceId  String?
+  invoiceUrl String?
+  history    OrderHistory?
+  cupon      Cupones?
+  paymentReference String?
+}
+
+model OrderItem {
+  id        String          @id @default(uuid())
+  orderId   String
+  order     Order           @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product         @relation(fields: [productId], references: [id])
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  quantity  Int
+  price     Decimal         @db.Decimal(10, 2)
+  empresaId String?
+  empresa   Empresa?        @relation(fields: [empresaId], references: [id])
+}
+
+model OrderHistory {
+  id        String      @id @default(uuid())
+  orderId   String      @unique
+  order     Order       @relation(fields: [orderId], references: [id])
+  clientId  String
+  client    Client      @relation(fields: [clientId], references: [id])
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+}
+
+model Empresa {
+  id        String      @id @default(uuid())
+  clientId  String      @unique
+  perfiles  Int[]
+  cards     Int[]
+  productos OrderItem[]
+  client    Client      @relation(fields: [clientId], references: [id])
+  createdAt DateTime    @default(now())
+}
+
+model Cupones {
+  id        String    @id @default(uuid())
+  codigo    String    @unique
+  descuento Decimal   @db.Decimal(10, 2)
+  createdAt DateTime  @default(now())
+  createdBy String
+  maturyAt  DateTime?
+  usedAt    DateTime?
+  clientId  String?
+  usedBy    Client?   @relation(fields: [clientId], references: [id])
+  orderId   String?   @unique
+  order     Order?    @relation(fields: [orderId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}

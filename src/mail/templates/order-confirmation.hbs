@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .container { padding: 20px; }
+    .header { text-align: center; }
+    .item { margin: 10px 0; }
+    .total { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Confirmación de Orden #{{orderNumber}}</h1>
+    </div>
+    
+    <div class="items">
+      <h2>Productos:</h2>
+      {{#each items}}
+      <div class="item">
+        <p>{{product.name}} - Cantidad: {{quantity}} - Precio: ${{price}}</p>
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="total">
+      <p>Total: ${{total}}</p>
+      <p>Tasa BCV: {{tasaBCV}}</p>
+      <p>Total en Bs: {{totalBs}}</p>
+    </div>
+  </div>
+</body>
+</html> 
