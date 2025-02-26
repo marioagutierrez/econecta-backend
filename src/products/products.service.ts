@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
 
 @Injectable()
@@ -24,8 +25,40 @@ export class ProductsService {
     });
   }
 
-  findAll() {
+  async findAll(params?: {
+    search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    excludeId?: string;
+  }) {
+    const where: Prisma.ProductWhereInput = {};
+
+    // Filtro por búsqueda en nombre o descripción
+    if (params?.search) {
+      where.OR = [
+        { name: { contains: params.search, mode: 'insensitive' } },
+        { description: { contains: params.search, mode: 'insensitive' } }
+      ];
+    }
+
+    // Filtro por rango de precios
+    if (params?.minPrice || params?.maxPrice) {
+      where.price = {};
+      if (params.minPrice) {
+        where.price.gte = params.minPrice;
+      }
+      if (params.maxPrice) {
+        where.price.lte = params.maxPrice;
+      }
+    }
+
+    // Excluir producto por ID
+    if (params?.excludeId) {
+      where.id = { not: params.excludeId };
+    }
+
     return this.prisma.product.findMany({
+      where,
       include: {
         variants: true
       }

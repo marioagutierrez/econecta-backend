@@ -1,8 +1,8 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
-import { lastValueFrom } from 'rxjs';
-import * as crypto from 'crypto';
+import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
+import { HttpService } from "@nestjs/axios";
+import { ConfigService } from "@nestjs/config";
+import { lastValueFrom,  } from "rxjs";
+import * as crypto from "crypto";
 
 interface GenerateOtpDto {
   banco: string;
@@ -17,6 +17,14 @@ interface DebitoInmediatoDto extends GenerateOtpDto {
   concepto: string;
 }
 
+interface ConsultarDebitoInmediatoDto {
+  id?: string;
+  banco?: string;
+  monto?: string;
+  telefono?: string;
+  cedula?: string;
+}
+
 interface OtpResponse {
   code: string;
   message: string;
@@ -28,6 +36,7 @@ interface DebitoResponse {
   message: string;
   reference: string;
   id: string;
+  success?: boolean;
 }
 
 @Injectable()
@@ -88,6 +97,7 @@ export class PaymentService {
       return response.data;
     } catch (error: unknown) {
       const err = error as { response?: { data: any }; message: string };
+      console.log(err);
       console.error(
         'Error en el servicio de pago:',
         err.response?.data || err.message,
@@ -105,7 +115,7 @@ export class PaymentService {
       const authToken = this.generateHmacToken(message);
       const commerceToken = this.configService.get<string>('COMMERCE_TOKEN');
 
-      const response = await lastValueFrom(
+      const debitoResponse = await lastValueFrom(
         this.httpService.post<DebitoResponse>(
           `${this.BASE_URL}/DebitoInmediato`,
           {
@@ -127,24 +137,64 @@ export class PaymentService {
         ),
       );
 
-      if (response.data.code !== 'ACCP') {
+      if (debitoResponse.data.success !== true) {
         throw new HttpException(
-          'Error procesando el pago',
+          JSON.stringify(debitoResponse.data),
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return await this.consultPayment({ id: debitoResponse.data.id });
+    } catch (error: unknown) {
+      throw error;
+    }
+  }
+  
+  async consultPayment(data: ConsultarDebitoInmediatoDto) {
+    try {
+      const message = `${data.id}`;
+      const authToken = this.generateHmacToken(message);
+      const commerceToken = this.configService.get<string>('COMMERCE_TOKEN');
+      
+      await new Promise(resolve => setTimeout(resolve, 10000));
+
+      const response = await lastValueFrom(
+        this.httpService.post<DebitoResponse>(
+          `${this.BASE_URL}/ConsultarOperaciones`,
+          {
+            id: data.id,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: authToken,
+              Commerce: commerceToken,
+            },
+          },
+        ),
+      );
+
+      console.log(response.data); 
+
+      if (!response.data.success) {
+        throw new HttpException(
+         JSON.stringify(response.data),
           HttpStatus.BAD_REQUEST,
         );
       }
 
       return response.data;
     } catch (error: unknown) {
-      const err = error as { response?: { data: any }; message: string };
-      console.error(
-        'Error en el servicio de pago:',
-        err.response?.data || err.message,
-      );
-      throw new HttpException(
-        'Error en el servicio de pago',
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
+      // const err = error as { response?: { data: any }; message: string };
+      // console.error(
+      //   'Error en el servicio de pago:',
+      //   err.response?.data || err.message,
+      // );
+      // throw new HttpException(
+      //   'Error en el servicio de pago',
+      //   HttpStatus.SERVICE_UNAVAILABLE,
+      // );
+      throw error;
     }
   }
 }

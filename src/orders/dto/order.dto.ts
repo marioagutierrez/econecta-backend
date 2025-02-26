@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, ShippingMethod } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 export class OrderItemDto {
@@ -41,6 +41,21 @@ export class CreateOrderDto {
   items: OrderItemDto[];
 
   @ApiProperty({
+    enum: ['DELIVERY', 'PICKUP', 'ENCOMIENDA'],
+    enumName: 'ShippingMethod',
+    example: 'DELIVERY',
+    description: 'Método de envío'
+  })
+  shippingMethod: ShippingMethod;
+
+  @ApiProperty({
+    example: 'Calle Principal #123, Ciudad',
+    description: 'Dirección de envío',
+    required: false
+  })
+  shippingAddress?: string;
+
+  @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',
     description: 'ID del cupón',
     required: false,
@@ -56,6 +71,22 @@ export class UpdateOrderDto {
     required: false,
   })
   status?: OrderStatus;
+
+  @ApiProperty({
+    enum: ['DELIVERY', 'PICKUP', 'ENCOMIENDA'],
+    enumName: 'ShippingMethod',
+    example: 'DELIVERY',
+    description: 'Método de envío',
+    required: false
+  })
+  shippingMethod?: ShippingMethod;
+
+  @ApiProperty({
+    example: 'Calle Principal #123, Ciudad',
+    description: 'Dirección de envío',
+    required: false
+  })
+  shippingAddress?: string;
 
   @ApiProperty({
     type: [OrderItemDto],

@@ -1,21 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GenerateOtpDto {
-  @ApiProperty({ example: '0105', description: 'Código del banco' })
+  @ApiProperty({ example: '0172', description: 'Código del banco' })
   banco: string;
 
-  @ApiProperty({ example: '100.00', description: 'Monto de la transacción' })
+  @ApiProperty({ example: '1.00', description: 'Monto de la transacción' })
   monto: string;
 
-  @ApiProperty({ example: '04141234567', description: 'Número de teléfono' })
+  @ApiProperty({ example: '04144673296', description: 'Número de teléfono' })
   telefono: string;
 
-  @ApiProperty({ example: 'V12345678', description: 'Cédula del cliente' })
+  @ApiProperty({ example: 'V29943273', description: 'Cédula del cliente' })
   cedula: string;
 }
 
 export class DebitoInmediatoDto extends GenerateOtpDto {
-  @ApiProperty({ example: 'Juan Pérez', description: 'Nombre del cliente' })
+  @ApiProperty({ example: 'Mario Gutierrez', description: 'Nombre del cliente' })
   nombre: string;
 
   @ApiProperty({ example: '123456', description: 'Código OTP' })

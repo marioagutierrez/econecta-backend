@@ -25,6 +25,9 @@ export class OrdersService {
         total,
         totalBs,
         tasaBCV,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        shippingMethod: data.shippingMethod,
+        shippingAddress: data.shippingAddress,
         items: {
           create: data.items
         },

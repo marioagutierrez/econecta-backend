@@ -22,7 +22,23 @@ export class ClientsService {
   }
 
   async findOne(id: string) {
-    const client = await this.prisma.client.findUnique({ where: { id } });
+    const client = await this.prisma.client.findUnique({ 
+      where: { id },
+      include: {
+        orders: {
+          include: {
+            items: {
+              include: {
+                product: true,
+                variant: true
+              }
+            },
+            history: true,
+            cupon: true
+          }
+        }
+      }
+    });
     if (!client) throw new NotFoundException('Cliente no encontrado');
     return client;
   }
