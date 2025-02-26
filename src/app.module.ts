@@ -13,6 +13,7 @@ import { BcvModule } from './bcv/bcv.module';
 import { PaymentModule } from './payment/payment.module';
 import { CuponesModule } from './cupones/cupones.module';
 import { JwtExceptionFilter } from './auth/filters/jwt-exception.filter';
+import { DeliveryModule } from './delivery/delivery.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { JwtExceptionFilter } from './auth/filters/jwt-exception.filter';
     BcvModule,
     PaymentModule,
     CuponesModule,
+    DeliveryModule,
   ],
   // controllers: [AppController],
   providers: [

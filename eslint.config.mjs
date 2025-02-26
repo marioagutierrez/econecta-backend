@@ -32,6 +32,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'warn',
       'prettier/prettier': 'off',
       'no-useless-catch': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
     },
   },
 );

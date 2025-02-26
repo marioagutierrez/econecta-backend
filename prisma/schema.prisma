@@ -24,6 +24,16 @@ enum ShippingMethod {
   ENCOMIENDA
 }
 
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  name      String?
+  username  String?    @unique
+  password  String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
 model Client {
   id       String     @id @default(uuid())
   email    String     @unique
@@ -88,6 +98,8 @@ model Order {
   history          OrderHistory?
   cupon            Cupones?
   paymentReference String?
+  deliveryZoneId   String?
+  deliveryZone     DeliveryZone? @relation(fields: [deliveryZoneId], references: [id])
 }
 
 model OrderItem {
@@ -136,6 +148,16 @@ model Cupones {
   usedBy    Client?   @relation(fields: [clientId], references: [id])
   orderId   String?   @unique
   order     Order?    @relation(fields: [orderId], references: [id])
+}
+
+model DeliveryZone {
+  id        String      @id @default(uuid())
+  zona      String
+  tarifa    Decimal     @db.Decimal(10, 2)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  isActive  Boolean     @default(true)
+  orders    Order[]
 }
 
 enum OrderStatus {
