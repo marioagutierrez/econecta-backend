@@ -137,13 +137,6 @@ export class PaymentService {
         ),
       );
 
-      if (debitoResponse.data.success !== true) {
-        throw new HttpException(
-          JSON.stringify(debitoResponse.data),
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
       return await this.consultPayment({ id: debitoResponse.data.id });
     } catch (error: unknown) {
       throw error;
@@ -155,8 +148,6 @@ export class PaymentService {
       const message = `${data.id}`;
       const authToken = this.generateHmacToken(message);
       const commerceToken = this.configService.get<string>('COMMERCE_TOKEN');
-      
-      await new Promise(resolve => setTimeout(resolve, 10000));
 
       const response = await lastValueFrom(
         this.httpService.post<DebitoResponse>(
