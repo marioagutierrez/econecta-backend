@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
-import { lastValueFrom,  } from "rxjs";
+import { lastValueFrom, firstValueFrom } from "rxjs";
 import * as crypto from "crypto";
 
 interface GenerateOtpDto {
@@ -137,6 +137,8 @@ export class PaymentService {
         ),
       );
 
+
+
       return await this.consultPayment({ id: debitoResponse.data.id });
     } catch (error: unknown) {
       throw error;
@@ -149,42 +151,24 @@ export class PaymentService {
       const authToken = this.generateHmacToken(message);
       const commerceToken = this.configService.get<string>('COMMERCE_TOKEN');
 
-      const response = await lastValueFrom(
-        this.httpService.post<DebitoResponse>(
-          `${this.BASE_URL}/ConsultarOperaciones`,
-          {
-            id: data.id,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: authToken,
-              Commerce: commerceToken,
-            },
-          },
-        ),
+      await new Promise(resolve => setTimeout(resolve, 15000));
+
+      const response = await firstValueFrom(
+            this.httpService.post<DebitoResponse>(
+              `${this.BASE_URL}/ConsultarOperaciones`,
+              { id: data.id },
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: authToken,
+                  Commerce: commerceToken,
+                },
+              },
+            )
       );
-
-      console.log(response.data); 
-
-      if (!response.data.success) {
-        throw new HttpException(
-         JSON.stringify(response.data),
-          HttpStatus.BAD_REQUEST,
-        );
-      }
 
       return response.data;
     } catch (error: unknown) {
-      // const err = error as { response?: { data: any }; message: string };
-      // console.error(
-      //   'Error en el servicio de pago:',
-      //   err.response?.data || err.message,
-      // );
-      // throw new HttpException(
-      //   'Error en el servicio de pago',
-      //   HttpStatus.SERVICE_UNAVAILABLE,
-      // );
       throw error;
     }
   }
