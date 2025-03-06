@@ -108,6 +108,21 @@ export class ProductsService {
   }
 
   async remove(id: string) {
-    return this.prisma.product.delete({ where: { id } });
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Eliminar todas las variantes del producto
+      await tx.productVariant.deleteMany({
+        where: { productId: id }
+      });
+
+      // 2. Eliminar los items de órdenes que usan este producto
+      await tx.orderItem.deleteMany({
+        where: { productId: id }
+      });
+
+      // 3. Finalmente eliminar el producto
+      return tx.product.delete({
+        where: { id }
+      });
+    });
   }
 }
