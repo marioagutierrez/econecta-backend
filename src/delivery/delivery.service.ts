@@ -1,26 +1,88 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 
 @Injectable()
 export class DeliveryService {
-  create(createDeliveryDto: CreateDeliveryDto) {
-    return 'This action adds a new delivery';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createDeliveryDto: CreateDeliveryDto) {
+    const { zona, tarifa, isActive } = createDeliveryDto;
+    return this.prisma.deliveryZone.create({
+      data: {
+        zona,
+        tarifa,
+        isActive: isActive ?? true
+      }
+    });
   }
 
-  findAll() {
-    return `This action returns all delivery`;
+  async findAll(onlyActive: boolean = false) {
+    if (onlyActive) {
+      return this.prisma.deliveryZone.findMany({
+        where: {
+          isActive: true
+        }
+      });
+    }
+    return this.prisma.deliveryZone.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} delivery`;
+  async findOne(id: string) {
+    const zone = await this.prisma.deliveryZone.findUnique({
+      where: { id }
+    });
+
+    if (!zone) {
+      throw new NotFoundException('Zona de entrega no encontrada');
+    }
+
+    return zone;
   }
 
-  update(id: number, updateDeliveryDto: UpdateDeliveryDto) {
-    return `This action updates a #${id} delivery`;
+  async findByZone(zona: string) {
+    const zone = await this.prisma.deliveryZone.findFirst({
+      where: { 
+        zona,
+        isActive: true
+      }
+    });
+
+    if (!zone) {
+      throw new NotFoundException('Zona de entrega no encontrada');
+    }
+
+    return zone;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} delivery`;
+  async update(id: string, updateDeliveryDto: UpdateDeliveryDto) {
+    const zone = await this.prisma.deliveryZone.findUnique({
+      where: { id }
+    });
+
+    if (!zone) {
+      throw new NotFoundException('Zona de entrega no encontrada');
+    }
+
+    return this.prisma.deliveryZone.update({
+      where: { id },
+      data: updateDeliveryDto
+    });
+  }
+
+  async remove(id: string) {
+    const zone = await this.prisma.deliveryZone.findUnique({
+      where: { id }
+    });
+
+    if (!zone) {
+      throw new NotFoundException('Zona de entrega no encontrada');
+    }
+
+    return this.prisma.deliveryZone.update({
+      where: { id },
+      data: { isActive: false }
+    });
   }
 }

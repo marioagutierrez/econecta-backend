@@ -33,6 +33,7 @@ export default tseslint.config(
       'prettier/prettier': 'off',
       'no-useless-catch': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
     },
   },
 );

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GenerateOtpDto {
+
   @ApiProperty({ example: '0172', description: 'Código del banco' })
   banco: string;
 

@@ -18,6 +18,13 @@ enum ClientType {
   EMPRESA
 }
 
+enum UserType {
+  ADMIN
+  DELIVERY
+  PRINTER
+  SELLER
+}
+
 enum ShippingMethod {
   DELIVERY
   PICKUP
@@ -30,6 +37,7 @@ model User {
   name      String?
   username  String?    @unique
   password  String?
+  type      UserType
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -50,7 +58,7 @@ model Client {
   orders       Order[]
   orderHistory OrderHistory[]
   empresa      Empresa?
-  cupones      Cupones[]
+  cuponUses    CuponUse[]
 }
 
 model Product {
@@ -80,6 +88,28 @@ model ProductVariant {
   orderItems  OrderItem[]
 }
 
+model Invoice {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  order           Order    @relation(fields: [orderId], references: [id])
+  corelativo      String?
+  invoiceUrl      String?
+  
+  buyerIdType     String
+  buyerIdNumber   String
+  buyerName       String
+  buyerAddress    String
+  buyerLocation   String
+  buyerCountry    String
+  buyerNotify     String?
+  buyerPhones     String[]
+  buyerEmails     String[]
+  
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model Order {
   id               String         @id @default(uuid())
   clientId         String
@@ -89,17 +119,17 @@ model Order {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   tasaBCV          Decimal        @db.Decimal(10, 2)
+  IVA              Decimal        @db.Decimal(10, 2) @default(0)
   totalBs          Decimal        @db.Decimal(10, 2)
   items            OrderItem[]
   shippingMethod   ShippingMethod
   shippingAddress  String?
-  invoiceId        String?
-  invoiceUrl       String?
   history          OrderHistory?
   cupon            Cupones?
   paymentReference String?
   deliveryZoneId   String?
   deliveryZone     DeliveryZone? @relation(fields: [deliveryZoneId], references: [id])
+  invoice          Invoice?
 }
 
 model OrderItem {
@@ -137,17 +167,26 @@ model Empresa {
 }
 
 model Cupones {
-  id        String    @id @default(uuid())
-  codigo    String    @unique
-  descuento Decimal   @db.Decimal(10, 2)
-  createdAt DateTime  @default(now())
-  createdBy String
-  maturyAt  DateTime?
-  usedAt    DateTime?
-  clientId  String?
-  usedBy    Client?   @relation(fields: [clientId], references: [id])
-  orderId   String?   @unique
-  order     Order?    @relation(fields: [orderId], references: [id])
+  id          String      @id @default(uuid())
+  codigo      String      @unique
+  descuento   Decimal     @db.Decimal(10, 2)
+  createdAt   DateTime    @default(now())
+  createdBy   String
+  maturyAt    DateTime?
+  maxUses     Int?        // null significa usos ilimitados
+  usedCount   Int         @default(0)
+  uses        CuponUse[]  // Relación uno a muchos con los usos
+  orderId     String?     @unique
+  order       Order?      @relation(fields: [orderId], references: [id])
+}
+
+model CuponUse {
+  id        String   @id @default(uuid())
+  cuponId   String
+  cupon     Cupones  @relation(fields: [cuponId], references: [id])
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  usedAt    DateTime @default(now())
 }
 
 model DeliveryZone {
@@ -163,6 +202,7 @@ model DeliveryZone {
 enum OrderStatus {
   PENDING
   PROCESSING
-  COMPLETED
+  ONWAY
+  DELIVERED
   CANCELLED
 }

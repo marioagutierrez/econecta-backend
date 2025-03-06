@@ -21,6 +21,13 @@ export class CreateCuponDto {
   createdBy: string;
 
   @ApiProperty({
+    example: 5,
+    description: 'Número máximo de usos (null para ilimitado)',
+    required: false
+  })
+  maxUses?: number;
+
+  @ApiProperty({
     example: '2024-12-31T23:59:59Z',
     description: 'Fecha de vencimiento',
     required: false
@@ -37,18 +44,11 @@ export class UpdateCuponDto {
   maturyAt?: Date;
 
   @ApiProperty({
-    example: '2024-03-15T10:30:00Z',
-    description: 'Fecha de uso',
+    example: 5,
+    description: 'Número máximo de usos',
     required: false
   })
-  usedAt?: Date;
-
-  @ApiProperty({
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    description: 'ID del cliente que usó el cupón',
-    required: false
-  })
-  clientId?: string;
+  maxUses?: number;
 
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',

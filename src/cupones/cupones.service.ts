@@ -8,14 +8,25 @@ export class CuponesService {
 
   async create(data: CreateCuponDto) {
     return this.prisma.cupones.create({
-      data
+      data: {
+        ...data,
+        usedCount: 0
+      },
+      include: {
+        uses: true,
+        order: true
+      }
     });
   }
 
   async findAll() {
     return this.prisma.cupones.findMany({
       include: {
-        usedBy: true,
+        uses: {
+          include: {
+            client: true
+          }
+        },
         order: true
       }
     });
@@ -25,7 +36,11 @@ export class CuponesService {
     const cupon = await this.prisma.cupones.findUnique({
       where: { id },
       include: {
-        usedBy: true,
+        uses: {
+          include: {
+            client: true
+          }
+        },
         order: true
       }
     });
@@ -37,16 +52,32 @@ export class CuponesService {
     const cupon = await this.prisma.cupones.findUnique({
       where: { codigo },
       include: {
-        usedBy: true,
+        uses: {
+          include: {
+            client: true
+          }
+        },
         order: true
       }
     });
+
     if (!cupon) throw new NotFoundException('Cupón no encontrado');
-    if (cupon.usedAt) throw new BadRequestException('Cupón ya utilizado');
-    if (cupon.maturyAt && cupon.maturyAt < new Date()) {
-      throw new BadRequestException('Cupón vencido');
+    
+    const isValid = 
+      (!cupon.maturyAt || cupon.maturyAt > new Date()) &&
+      (!cupon.maxUses || cupon.usedCount < cupon.maxUses);
+
+    if (!isValid) {
+      const reason = cupon.maturyAt && cupon.maturyAt < new Date() 
+        ? 'vencido' 
+        : 'alcanzó el máximo de usos';
+      throw new BadRequestException(`Cupón ${reason}`);
     }
-    return cupon;
+
+    return {
+      ...cupon,
+      live: isValid
+    };
   }
 
   async update(id: string, data: UpdateCuponDto) {
@@ -54,7 +85,11 @@ export class CuponesService {
       where: { id },
       data,
       include: {
-        usedBy: true,
+        uses: {
+          include: {
+            client: true
+          }
+        },
         order: true
       }
     });
@@ -62,5 +97,41 @@ export class CuponesService {
 
   async remove(id: string) {
     return this.prisma.cupones.delete({ where: { id } });
+  }
+
+  async registerUse(id: string, data: { clientId: string; orderId: string }) {
+    const cupon = await this.prisma.cupones.findUnique({
+      where: { id },
+      include: { uses: true }
+    });
+
+    if (!cupon) {
+      throw new NotFoundException('Cupón no encontrado');
+    }
+
+    if (cupon.maxUses && cupon.usedCount >= cupon.maxUses) {
+      throw new BadRequestException('Cupón alcanzó el máximo de usos');
+    }
+
+    return this.prisma.cupones.update({
+      where: { id },
+      data: {
+        usedCount: { increment: 1 },
+        uses: {
+          create: {
+            clientId: data.clientId
+          }
+        },
+        orderId: data.orderId
+      },
+      include: {
+        uses: {
+          include: {
+            client: true
+          }
+        },
+        order: true
+      }
+    });
   }
 } 

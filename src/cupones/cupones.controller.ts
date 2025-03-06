@@ -60,4 +60,12 @@ export class CuponesController {
   remove(@Param('id') id: string) {
     return this.cuponesService.remove(id);
   }
+
+  @Post(':id/use')
+  async useCupon(
+    @Param('id') id: string,
+    @Body() data: { clientId: string; orderId: string }
+  ) {
+    return this.cuponesService.registerUse(id, data);
+  }
 } 

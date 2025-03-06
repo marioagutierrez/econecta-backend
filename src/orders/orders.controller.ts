@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto, UpdateOrderDto } from './dto/order.dto';
+import { CreateOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -23,8 +23,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @ApiOperation({ summary: 'Crear nueva orden' })
-  @ApiResponse({ status: 201, description: 'Orden creada exitosamente' })
+  @ApiOperation({ summary: 'Crear nueva orden con facturación' })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Orden creada exitosamente',
+    type: CreateOrderDto 
+  })
   @ApiResponse({ status: 400, description: 'Datos inválidos' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -70,5 +74,19 @@ export class OrdersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ordersService.remove(id);
+  }
+
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'Actualizar estado de la orden' })
+  @ApiResponse({ status: 200, description: 'Estado actualizado exitosamente' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Orden no encontrada' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateOrderStatusDto
+  ) {
+    return this.ordersService.updateStatus(id, updateStatusDto.status);
   }
 }

@@ -18,13 +18,6 @@ export class CreateDeliveryDto {
   tarifa: Decimal;
 
   @ApiProperty({
-    example: 'user123',
-    description: 'ID del usuario que crea la zona'
-  })
-  @IsString()
-  createdBy: string;
-
-  @ApiProperty({
     example: true,
     description: 'Estado de la zona de entrega',
     default: true
