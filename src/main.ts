@@ -7,7 +7,7 @@ async function bootstrap() {
 
   // Configuración de CORS
   app.enableCors({
-    origin: ['http://localhost:3001'], // Permite solicitudes desde localhost:3001
+    origin: ['https://my.econecta.io', 'https://econecta.io'], // Permite solicitudes desde localhost:3001
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
